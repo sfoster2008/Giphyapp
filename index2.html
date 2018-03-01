@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Giphy App</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <style type="text/css">
+    button,
+    div,
+    form,
+    input {
+      margin: 10px;
+      background-color:blueviolet
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Giphy Search App</h1>
+
+    <!-- Giphys will Get Dumped Dere -->
+    <div id="gifs-view"></div>
+
+    <!-- Rendered Buttons will get Dumped Here  -->
+    <div id="buttons-view"></div>
+
+    <form id="gif-form">
+      <label for="gif-input">Add a Gif</label>
+      <input type="text" id="gif-input">
+      <br>
+
+      <!-- Button triggers new gif to be added -->
+      <input id="add-gif" type="submit" value="Add a Gif">
+    </form>
+
+    <div id="GIFArea"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      // Initial array of gifs
+      var gifs = ["Han Solo", "Luke Skywalker", "Chewbacca", "Darth Vader"];
+
+      // displayGifInfo function re-renders the HTML to display the appropriate content
+      function displayGifInfo() {
+
+        var gif = $(this).attr("data-name");
+        var queryURL = "http://api.giphy.com/v1/gifs/search?q=" + gif + "&apikey=aOl9kQhkD3BSTvIcYxP7NKBNdhxvZrC2&limit=10";
+
+        // Creating an AJAX call for the specific gif button being clicked
+        $.ajax({
+          url: queryURL,
+          method: "GET"
+        }).done(function(response) {
+            console.log(response)
+            for(var i=0; i< response.data.length; i++) {
+                    $('#GIFArea').prepend("<p> Rating: " +response.data[i].rating+ "</p>");
+                    $('#GIFArea').prepend("<img src='" +response.data[i].images.downsized.url+"'>");
+                }
+          // Creating a div to hold the gif
+          var gifDiv = $("<div class='gif'>");
+
+          // Storing the rating data
+          var rating = response.Rated;
+
+          // Retrieving the URL for the image
+          var imgURL = response.data;
+
+          // Putting the entire movie above the previous movies
+          $("#gifs-view").prepend(gifDiv);
+        });
+      }
+
+      // Function for displaying gif data
+      function renderButtons() {
+
+        // Deleting the gifs prior to adding new gifs
+        // (this is necessary otherwise you will have repeat buttons)
+        $("#buttons-view").empty();
+
+        // Looping through the array of gifs
+        for (var i = 0; i < gifs.length; i++) {
+
+          // Then dynamicaly generating buttons for each movie in the array
+          // This code $("<button>") is all jQuery needs to create the beginning and end tag. (<button></button>)
+          var a = $("<button type='button' class='btn btn-info'>");
+          // Adding a class of gif-btn to our button
+          a.addClass("gif-btn");
+          // Adding a data-attribute
+          a.attr("data-name", gifs[i]);
+          // Providing the initial button text
+          a.text(gifs[i]);
+          // Adding the button to the buttons-view div
+          $("#buttons-view").append(a);
+        }
+      }
+
+      // This function handles events where a gif button is clicked
+      $("#add-gif").on("click", function(event) {
+        event.preventDefault();
+        // This line grabs the input from the textbox
+        var gif = $("#gif-input").val().trim();
+
+        // Adding gif from the textbox to our array
+        gifs.push(gif);
+
+        // Calling renderButtons which handles the processing of our gif array
+        renderButtons();
+      });
+
+      // Adding a click event listener to all elements with a class of "gif-btn"
+      $(document).on("click", ".gif-btn", displayGifInfo);
+
+      // Calling the renderButtons function to display the intial buttons
+      renderButtons();
+
+    $(".gif").on("click", function() {
+      // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
+      var state = $(this).attr("data-state");
+      // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+      // Then, set the image's data-state to animate
+      // Else set src to the data-still value
+      if (state === "still") {
+        $(this).attr("src", $(this).attr("data-animate"));
+        $(this).attr("data-state", "animate");
+      } else {
+        $(this).attr("src", $(this).attr("data-still"));
+        $(this).attr("data-state", "still");
+      }
+    });
+
+    </script>
+  </div>
+</body>
+
+</html>
